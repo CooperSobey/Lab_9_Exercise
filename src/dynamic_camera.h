@@ -40,8 +40,25 @@ struct DynamicCamera {
         // TODO: (HINTS/outline)
         // collect statistics on the player position and velocity in (normalized, if you like)
         // window coordinates. Compute lookAhead distance in world coords, adjusting for
+
+        //start from a baseline
+        camera.setCameraCenter(cameraUnadjustedCenter);
+        float playerXPercent = camera.worldToWindowPercent(trackedPosWorld).x;
+
+        float lookAheadDistDir;
+        float lookAheadDist = camera.windowPercentToWorldDist({lookAhead, 0}).x;
         // if the player is moving left or right.
+        if (trackedVelocityWorld.x > 0) {   //right
+            lookAheadDistDir = lookAheadDist;
+        }else if (trackedVelocityWorld.x < 0) { //left
+            lookAheadDistDir = -lookAheadDist;
+        } else {
+            lookAheadDistDir = 0;
+        }
+
         // Now update lookAhead state using an EMA over its previous state and the lookAhead world
+
+
         // vector. Then determine if the player is in the dead zone, soft rejection zone, or hard
         // rejection zone. For each, perform EMA on the delta of the camera displacement (ignoring
         // lookahead) appropriately. Next,
