@@ -87,7 +87,7 @@ public:
         vWorld / mWorldUnitsPerPixel
     }; };
     sf::Vector2f windowPercentToWorldDist(const sf::Vector2f& vWindowPercent) { return {
-        windowPercentToWorldDist(vWindowPercent * mWindowSize)
+        windowToWorldDist(vWindowPercent * mWindowSize)
     }; };
     sf::Vector2f worldToWindowPercentDist(const sf::Vector2f& vWorld) { return {
         worldToWindowDist(vWorld) / mWindowSize

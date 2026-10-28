@@ -57,14 +57,47 @@ struct DynamicCamera {
         }
 
         // Now update lookAhead state using an EMA over its previous state and the lookAhead world
+        lookaheadState = lookaheadState + alpha * (lookAheadDistDir - lookaheadState);
 
-
+        float movePercent = 0;
         // vector. Then determine if the player is in the dead zone, soft rejection zone, or hard
         // rejection zone. For each, perform EMA on the delta of the camera displacement (ignoring
-        // lookahead) appropriately. Next,
+        // lookahead) appropriately.
+        if (!deadZoneX.contains(playerXPercent)) {
+            float dir = 0;
+
+            if (playerXPercent > deadZoneX.max) {
+                dir = 1;
+            } else if (playerXPercent < deadZoneX.max) {
+                dir = -1;
+            }
+
+            //Xn - Sn-1
+            float distToDEdge = deadZoneX.signedDistance(playerXPercent);
+
+            if (softZoneX.contains(playerXPercent)) {
+                //0 + a(Xn - Sn-1)
+                movePercent = alpha * distToDEdge;
+                movePercent *= dir;
+            } else {    //hardZone
+                //find the distance from the softzone
+                float hardZoneDist = softZoneX.signedDistance(playerXPercent);
+                //Ema calc
+                movePercent = hardZoneDist + alpha * (distToDEdge - hardZoneDist);
+                movePercent *= dir;
+            }
+        }
+
+        // Next,
         // set the camera center by offsetting the cameraUnadjustedCenter, combining lookAhead.
         // Finally update cameraUnadjustedCenter, but without lookahead.
+        float moveWorld = camera.windowPercentToWorldDist({movePercent, 0}).x;
+        cameraUnadjustedCenter.x += moveWorld;
+        camera.setCameraCenter({cameraUnadjustedCenter.x + lookaheadState, cameraUnadjustedCenter.y});
+
+
     }
+
 
     float alpha;  // alpha to use for damping of camera position, *as well as* for smoothing of
                   // lookahead offset.
